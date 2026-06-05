@@ -1,89 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
-    
-    <!-- 
-    OWASP Dependency Check Suppressions for Live Notifications Demo
-    
-    This file contains suppressions for known false positives or accepted risks
-    in the dependency vulnerability scanning process.
-    
-    Each suppression should include:
-    - A clear reason for suppression
-    - The specific vulnerability being suppressed
-    - An expiration date for review
-    -->
-    
-    <!-- Suppress false positives for Android SDK components -->
+
+    <!-- Android SDK jars are build-time tooling, not shipped in the APK. -->
     <suppress>
-        <notes>
-            Android SDK components are managed by Google and follow their own security model.
-            These warnings are typically false positives for Android development.
-        </notes>
+        <notes>Android SDK components are managed by Google and are not app runtime deps.</notes>
         <filePath regex="true">.*android.*\.jar</filePath>
-        <cve>.*</cve>
     </suppress>
-    
-    <!-- Suppress warnings for Gradle wrapper -->
+
+    <!-- Gradle wrapper is build-time only. -->
     <suppress>
-        <notes>
-            Gradle wrapper vulnerabilities are typically not applicable to the built application.
-            These are build-time only dependencies.
-        </notes>
+        <notes>Gradle wrapper is not packaged into the application.</notes>
         <filePath regex="true">.*gradle-wrapper.*</filePath>
-        <cve>.*</cve>
     </suppress>
-    
-    <!-- Suppress test-only dependencies vulnerabilities -->
+
+    <!-- Test dependencies are not shipped with release builds. -->
     <suppress>
-        <notes>
-            Test dependencies are not shipped with the production application.
-            Vulnerabilities in test frameworks don't affect runtime security.
-        </notes>
+        <notes>Test-only dependencies are excluded from production artifacts.</notes>
         <filePath regex="true">.*test.*\.jar</filePath>
-        <cve>.*</cve>
     </suppress>
-    
+
     <suppress>
-        <notes>
-            JUnit and testing frameworks are test-time only dependencies.
-        </notes>
+        <notes>JUnit is test-time only.</notes>
         <filePath regex="true">.*junit.*\.jar</filePath>
-        <cve>.*</cve>
     </suppress>
-    
+
     <suppress>
-        <notes>
-            Espresso testing framework is test-time only.
-        </notes>
+        <notes>Espresso is test-time only.</notes>
         <filePath regex="true">.*espresso.*\.jar</filePath>
-        <cve>.*</cve>
     </suppress>
-    
-    <!-- 
-    Example of suppressing a specific CVE:
-    
-    <suppress>
-        <notes>
-            CVE-2023-XXXXX: This vulnerability affects server-side usage of the library,
-            but our Android app only uses client-side functionality.
-            Expires: 2025-12-31
-        </notes>
-        <gav regex="true">.*:example-library:.*</gav>
-        <cve>CVE-2023-XXXXX</cve>
-    </suppress>
-    -->
-    
-    <!-- 
-    Example of suppressing by package name:
-    
-    <suppress>
-        <notes>
-            Known false positive for Android development.
-            This library is used correctly in our context.
-        </notes>
-        <packageUrl regex="true">pkg:maven/com\.example/.*</packageUrl>
-        <vulnerabilityName>.*</vulnerabilityName>
-    </suppress>
-    -->
-    
+
 </suppressions>

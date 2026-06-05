@@ -41,7 +41,7 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Run dependency vulnerability scan
-        run: ./gradlew dependencyCheckAnalyze --no-daemon --stacktrace
+        run: ./gradlew dependencyCheckAnalyze --no-daemon --stacktrace --no-configuration-cache
         env:
           NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
 
@@ -56,6 +56,7 @@ jobs:
             build/reports/dependency-check-report.json
             build/reports/dependency-check-report.sarif
           retention-days: 30
+          if-no-files-found: ignore
 
       - name: Upload results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v4
@@ -129,3 +130,4 @@ jobs:
           name: dependency-updates-report
           path: build/dependencyUpdates/
           retention-days: 30
+          if-no-files-found: ignore

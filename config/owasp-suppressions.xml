@@ -1,32 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
-
-    <!-- Android SDK jars are build-time tooling, not shipped in the APK. -->
-    <suppress>
-        <notes>Android SDK components are managed by Google and are not app runtime deps.</notes>
-        <filePath regex="true">.*android.*\.jar</filePath>
-    </suppress>
-
-    <!-- Gradle wrapper is build-time only. -->
-    <suppress>
-        <notes>Gradle wrapper is not packaged into the application.</notes>
-        <filePath regex="true">.*gradle-wrapper.*</filePath>
-    </suppress>
-
-    <!-- Test dependencies are not shipped with release builds. -->
-    <suppress>
-        <notes>Test-only dependencies are excluded from production artifacts.</notes>
-        <filePath regex="true">.*test.*\.jar</filePath>
-    </suppress>
-
-    <suppress>
-        <notes>JUnit is test-time only.</notes>
-        <filePath regex="true">.*junit.*\.jar</filePath>
-    </suppress>
-
-    <suppress>
-        <notes>Espresso is test-time only.</notes>
-        <filePath regex="true">.*espresso.*\.jar</filePath>
-    </suppress>
-
+    <!-- Add specific CVE suppressions here when needed. -->
 </suppressions>

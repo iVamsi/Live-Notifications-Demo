@@ -5,7 +5,7 @@ plugins {
     alias(libs.plugins.android.application) apply false
     alias(libs.plugins.kotlin.compose) apply false
     id("org.owasp.dependencycheck") version "12.1.0"
-    id("com.github.ben-manes.versions") version "0.52.0"
+    id("com.github.ben-manes.versions") version "0.54.0"
 }
 
 buildscript {

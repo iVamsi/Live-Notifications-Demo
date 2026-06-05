@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "com.vamsi.livenotifications"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.vamsi.livenotifications"

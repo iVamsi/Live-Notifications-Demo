@@ -6,7 +6,6 @@ on:
   pull_request:
     branches: [main]
   schedule:
-    # Run security checks weekly on Sundays at 2 AM UTC
     - cron: "0 2 * * 0"
 
 permissions:
@@ -42,9 +41,9 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Run dependency vulnerability scan
-        run: |
-          ./gradlew dependencyCheckAnalyze --info
-        continue-on-error: true
+        run: ./gradlew dependencyCheckAnalyze --no-daemon --stacktrace
+        env:
+          NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
 
       - name: Upload dependency check results
         uses: actions/upload-artifact@v4
@@ -54,33 +53,15 @@ jobs:
           path: |
             build/reports/dependency-check-report.html
             build/reports/dependency-check-report.xml
+            build/reports/dependency-check-report.json
+            build/reports/dependency-check-report.sarif
           retention-days: 30
 
-      - name: Run OWASP Dependency Check
-        uses: dependency-check/Dependency-Check_Action@main
-        id: depcheck
+      - name: Upload results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v4
+        if: always() && hashFiles('build/reports/dependency-check-report.sarif') != ''
         with:
-          project: "Live-Notifications-Demo"
-          path: "."
-          format: "ALL"
-          out: "reports"
-          args: >
-            --enableRetired
-            --enableExperimental
-
-      - name: Upload OWASP results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v3
-        if: always()
-        with:
-          sarif_file: reports/dependency-check-report.sarif
-
-      - name: Upload OWASP results as artifacts
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: owasp-dependency-check-reports
-          path: reports/
-          retention-days: 30
+          sarif_file: build/reports/dependency-check-report.sarif
 
       - name: Comment on PR with security results
         if: github.event_name == 'pull_request' && always()
@@ -88,36 +69,38 @@ jobs:
         with:
           script: |
             const fs = require('fs');
-            const path = 'reports/dependency-check-report.json';
+            const path = 'build/reports/dependency-check-report.json';
 
-            if (fs.existsSync(path)) {
-              const report = JSON.parse(fs.readFileSync(path, 'utf8'));
-              const vulnerabilities = report.dependencies?.filter(dep => 
-                dep.vulnerabilities && dep.vulnerabilities.length > 0
-              ) || [];
-              
-              let comment = '## 🔒 Security Scan Results\n\n';
-              
-              if (vulnerabilities.length === 0) {
-                comment += '✅ No security vulnerabilities detected in dependencies.\n';
-              } else {
-                comment += `⚠️ Found ${vulnerabilities.length} dependencies with security vulnerabilities:\n\n`;
-                vulnerabilities.slice(0, 5).forEach(dep => {
-                  comment += `- **${dep.fileName}**: ${dep.vulnerabilities.length} vulnerability(ies)\n`;
-                });
-                if (vulnerabilities.length > 5) {
-                  comment += `- ... and ${vulnerabilities.length - 5} more\n`;
-                }
-                comment += '\n📋 Check the full report in the artifacts for details.\n';
-              }
-              
-              github.rest.issues.createComment({
-                issue_number: context.issue.number,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                body: comment
-              });
+            if (!fs.existsSync(path)) {
+              return;
             }
+
+            const report = JSON.parse(fs.readFileSync(path, 'utf8'));
+            const vulnerabilities = report.dependencies?.filter(dep =>
+              dep.vulnerabilities && dep.vulnerabilities.length > 0
+            ) || [];
+
+            let comment = '## Security Scan Results\n\n';
+
+            if (vulnerabilities.length === 0) {
+              comment += 'No security vulnerabilities detected in dependencies.\n';
+            } else {
+              comment += `Found ${vulnerabilities.length} dependencies with security vulnerabilities:\n\n`;
+              vulnerabilities.slice(0, 5).forEach(dep => {
+                comment += `- **${dep.fileName}**: ${dep.vulnerabilities.length} vulnerability(ies)\n`;
+              });
+              if (vulnerabilities.length > 5) {
+                comment += `- ... and ${vulnerabilities.length - 5} more\n`;
+              }
+              comment += '\nCheck the workflow artifacts for the full report.\n';
+            }
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
 
   gradle-security:
     runs-on: ubuntu-latest
@@ -136,8 +119,7 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Check for outdated dependencies
-        run: |
-          ./gradlew dependencyUpdates --info
+        run: ./gradlew dependencyUpdates --no-daemon --stacktrace
         continue-on-error: true
 
       - name: Upload dependency updates report

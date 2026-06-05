@@ -4,8 +4,8 @@ import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 plugins {
     alias(libs.plugins.android.application) apply false
     alias(libs.plugins.kotlin.compose) apply false
-    id("org.owasp.dependencycheck") version "12.1.0"
-    id("com.github.ben-manes.versions") version "0.52.0"
+    id("org.owasp.dependencycheck") version "12.2.2"
+    id("com.github.ben-manes.versions") version "0.54.0"
 }
 
 buildscript {
@@ -15,13 +15,15 @@ buildscript {
 }
 
 dependencyCheck {
-    outputDirectory = "build/reports"
-    format = "ALL"
-    suppressionFile = "config/owasp-suppressions.xml"
+    outputDirectory.set(layout.buildDirectory.dir("reports"))
+    format.set("ALL")
+    suppressionFile.set("config/owasp-suppressions.xml")
 
     analyzers {
-        assemblyEnabled = false
-        nodeEnabled = false
+        assemblyEnabled.set(false)
+        nodePackage {
+            enabled.set(false)
+        }
     }
 
     nvd {

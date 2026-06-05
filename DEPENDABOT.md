@@ -43,21 +43,19 @@ Dependencies are grouped logically for easier review:
 
 - **Minor Updates** (1.0.0 → 1.1.0):
 
-  - ✅ Automatically approved
-  - ⚠️ Manual merge required after review
-  - May include new features, require testing
+  - ✅ Automatically merged after all CI checks pass
+  - May include new features; build and tests must stay green
 
 - **Major Updates** (1.0.0 → 2.0.0):
-  - ⚠️ Comment added highlighting breaking changes
-  - Manual review and approval required
-  - Potential breaking changes, thorough testing needed
+  - ✅ Automatically merged after all CI checks pass
+  - A comment is added noting the major bump
 
 **Build Process:**
 
 1. Sets up JDK 17 and caches Gradle dependencies
-2. Runs `./gradlew clean build` to ensure compilation
-3. Runs `./gradlew test` to verify functionality
-4. Only proceeds with auto-merge if all tests pass
+2. Runs `./gradlew test assembleDebug lintDebug`
+3. Waits for all other PR checks (security scan, Android CI) to finish
+4. Auto-merges patch and minor updates when everything is green
 
 ### 2. Security Check (`.github/workflows/security-check.yml`)
 

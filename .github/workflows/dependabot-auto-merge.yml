@@ -38,8 +38,7 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Build and test
-        run: |
-          ./gradlew test assembleDebug lintDebug --no-daemon --stacktrace
+        run: ./gradlew test assembleDebug lintDebug --no-daemon --stacktrace
         env:
           GRADLE_OPTS: -Dorg.gradle.daemon=false
 
@@ -49,26 +48,25 @@ jobs:
         with:
           github-token: "${{ secrets.GITHUB_TOKEN }}"
 
-      - name: Auto-merge patch updates
-        if: steps.dependabot-metadata.outputs.update-type == 'version-update:semver-patch'
-        continue-on-error: true
-        run: gh pr merge --auto --merge "$PR_URL"
+      - name: Wait for all PR checks
+        run: gh pr checks "$PR_NUMBER" --repo "$REPO" --watch --interval 30
         env:
-          PR_URL: ${{ github.event.pull_request.html_url }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Comment on minor updates
-        if: steps.dependabot-metadata.outputs.update-type == 'version-update:semver-minor'
+      - name: Auto-merge when CI is green
+        if: |
+          steps.dependabot-metadata.outputs.update-type == 'version-update:semver-patch' ||
+          steps.dependabot-metadata.outputs.update-type == 'version-update:semver-minor' ||
+          steps.dependabot-metadata.outputs.update-type == 'version-update:semver-major'
         run: |
-          gh pr comment "$PR_URL" --body "Minor version update verified by CI. Merge manually after review."
+          if [ "${{ steps.dependabot-metadata.outputs.update-type }}" = "version-update:semver-major" ]; then
+            gh pr comment "$PR_NUMBER" --repo "$REPO" \
+              --body "Major update — CI green. Auto-merging after review-free dependency bump."
+          fi
+          gh pr merge "$PR_NUMBER" --repo "$REPO" --merge --delete-branch
         env:
-          PR_URL: ${{ github.event.pull_request.html_url }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Comment on major updates
-        if: steps.dependabot-metadata.outputs.update-type == 'version-update:semver-major'
-        run: |
-          gh pr comment "$PR_URL" --body "Major version update detected. Review breaking changes before merging."
-        env:
-          PR_URL: ${{ github.event.pull_request.html_url }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -86,3 +86,20 @@ Thumbs.db
 # GIF files - keep only the main demo GIF
 *.gif
 !live_updates_demo.gif
+
+# IDE and editor files
+.vscode/
+.claude/
+
+# Documentation
+docs/
+
+# Dependency check and security reports
+dependency-check-report.html
+dependency-check-report.xml
+dependency-check-report.json
+dependency-check-report.sarif
+odc-reports/
+reports/
+build/reports/dependency-check*
+build/dependencyUpdates/

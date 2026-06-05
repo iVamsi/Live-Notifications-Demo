@@ -1,0 +1,104 @@
+# Dependabot configuration for Live Notifications Demo
+# This file configures Dependabot to automatically check for dependency updates
+# and create pull requests to keep the project dependencies current
+
+version: 2
+updates:
+  # Enable version updates for Gradle dependencies
+  - package-ecosystem: "gradle"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "iVamsi"
+    assignees:
+      - "iVamsi"
+    commit-message:
+      prefix: "gradle"
+      prefix-development: "gradle-dev"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "gradle"
+      - "automated"
+    allow:
+      # Allow updates for all dependency types
+      - dependency-type: "direct"
+      - dependency-type: "indirect"
+    # Group related dependencies together
+    groups:
+      android-core:
+        patterns:
+          - "androidx.*"
+          - "com.android.*"
+        update-types:
+          - "minor"
+          - "patch"
+      compose:
+        patterns:
+          - "*compose*"
+          - "androidx.compose.*"
+        update-types:
+          - "minor"
+          - "patch"
+      kotlin:
+        patterns:
+          - "org.jetbrains.kotlin*"
+          - "org.jetbrains.kotlinx*"
+        update-types:
+          - "minor"
+          - "patch"
+      testing:
+        patterns:
+          - "*test*"
+          - "*junit*"
+          - "*espresso*"
+          - "*mockito*"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # Enable version updates for GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "iVamsi"
+    assignees:
+      - "iVamsi"
+    commit-message:
+      prefix: "ci"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "github-actions"
+      - "ci"
+
+  # Enable version updates for Docker (if used in the future)
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+      day: "1"
+      time: "09:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 3
+    reviewers:
+      - "iVamsi"
+    assignees:
+      - "iVamsi"
+    commit-message:
+      prefix: "docker"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "docker"

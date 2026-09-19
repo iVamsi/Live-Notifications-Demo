@@ -4,7 +4,7 @@ import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 plugins {
     alias(libs.plugins.android.application) apply false
     alias(libs.plugins.kotlin.compose) apply false
-    id("org.owasp.dependencycheck") version "13.0.0"
+    id("org.owasp.dependencycheck") version "12.2.2" // 13.0.0 rejects a missing NVD key
     id("com.github.ben-manes.versions") version "0.61.0"
 }
 
@@ -27,8 +27,7 @@ dependencyCheck {
     }
 
     nvd {
-        apiKey = System.getenv("NVD_API_KEY") ?: ""
-        delay = 1000
+        System.getenv("NVD_API_KEY")?.takeIf { it.isNotBlank() }?.let { apiKey = it }
     }
 }
 

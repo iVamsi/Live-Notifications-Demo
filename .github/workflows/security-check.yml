@@ -44,7 +44,11 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Run dependency vulnerability scan
-        run: ./gradlew dependencyCheckAnalyze --no-daemon --stacktrace --no-configuration-cache
+        run: |
+          if [ -z "${NVD_API_KEY:-}" ]; then
+            unset NVD_API_KEY
+          fi
+          ./gradlew dependencyCheckAnalyze --no-daemon --stacktrace --no-configuration-cache
         env:
           NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
 

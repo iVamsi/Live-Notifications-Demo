@@ -29,6 +29,9 @@ updates:
       # Allow updates for all dependency types
       - dependency-type: "direct"
       - dependency-type: "indirect"
+    ignore:
+      - dependency-name: "org.owasp.dependencycheck"
+        versions: ["13.0.0"]
     # Group related dependencies together
     groups:
       android-core:

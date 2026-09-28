@@ -66,7 +66,7 @@ jobs:
           if-no-files-found: ignore
 
       - name: Upload results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v4.38.1
+        uses: github/codeql-action/upload-sarif@v4.38.2
         if: always() && hashFiles('build/reports/dependency-check-report.sarif') != ''
         with:
           sarif_file: build/reports/dependency-check-report.sarif

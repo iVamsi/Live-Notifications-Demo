@@ -10,13 +10,13 @@ on:
 
 permissions:
   contents: read
-  security-events: write
-  actions: read
-  pull-requests: write
-  issues: write
 
 jobs:
   security-scan:
+    permissions:
+      contents: read
+      security-events: write
+      pull-requests: write
     runs-on: ubuntu-latest
 
     steps:
@@ -112,6 +112,8 @@ jobs:
             });
 
   gradle-security:
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
 
     steps:

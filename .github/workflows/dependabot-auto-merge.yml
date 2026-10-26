@@ -5,12 +5,14 @@ on:
     types: [opened, synchronize, reopened]
 
 permissions:
-  contents: write
-  pull-requests: write
-  checks: read
+  contents: read
 
 jobs:
   dependabot-auto-merge:
+    permissions:
+      contents: write
+      pull-requests: write
+      checks: read
     runs-on: ubuntu-latest
     if: github.actor == 'dependabot[bot]'
 
@@ -61,12 +63,13 @@ jobs:
           steps.dependabot-metadata.outputs.update-type == 'version-update:semver-minor' ||
           steps.dependabot-metadata.outputs.update-type == 'version-update:semver-major'
         run: |
-          if [ "${{ steps.dependabot-metadata.outputs.update-type }}" = "version-update:semver-major" ]; then
+          if [ "$UPDATE_TYPE" = "version-update:semver-major" ]; then
             gh pr comment "$PR_NUMBER" --repo "$REPO" \
               --body "Major update — CI green. Auto-merging after review-free dependency bump."
           fi
           gh pr merge "$PR_NUMBER" --repo "$REPO" --merge --delete-branch
         env:
+          UPDATE_TYPE: ${{ steps.dependabot-metadata.outputs.update-type }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           REPO: ${{ github.repository }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

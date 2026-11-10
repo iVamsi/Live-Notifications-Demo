@@ -51,7 +51,22 @@ jobs:
           github-token: "${{ secrets.GITHUB_TOKEN }}"
 
       - name: Wait for all PR checks
-        run: gh pr checks "$PR_NUMBER" --repo "$REPO" --watch --interval 30
+        timeout-minutes: 45
+        run: |
+          # ponytail: ignore this job, or --watch waits on itself until the 6h timeout
+          for _ in $(seq 1 80); do
+            checks=$(gh pr checks "$PR_NUMBER" --repo "$REPO" --json name,bucket) || { sleep 30; continue; }
+            others=$(jq -c '[.[] | select(.name != "dependabot-auto-merge")]' <<<"$checks")
+            [ "$(jq 'length' <<<"$others")" -eq 0 ] && { sleep 30; continue; }
+            jq -e 'all(.bucket == "pass" or .bucket == "skipping")' <<<"$others" >/dev/null && exit 0
+            if jq -e 'any(.bucket == "fail" or .bucket == "cancel")' <<<"$others" >/dev/null; then
+              jq -r '.[] | "\(.name) \(.bucket)"' <<<"$others"
+              exit 1
+            fi
+            sleep 30
+          done
+          echo "timed out waiting for other checks" >&2
+          exit 1
         env:
           PR_NUMBER: ${{ github.event.pull_request.number }}
           REPO: ${{ github.repository }}
